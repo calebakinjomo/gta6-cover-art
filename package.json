@@ -1,0 +1,1 @@
+{"description":"Vice City Cover Studio — offline GTA-style cover art maker","name":"gta6-cover-art","private":true,"scripts":{"build":"node main.ts","start":"node serve.ts"},"type":"module"}

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vice City Cover Studio — GTA-style cover art maker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ff2e88'/%3E%3Ctext x='16' y='23' font-family='sans-serif' font-size='17' font-weight='bold' text-anchor='middle' fill='white'%3EVC%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">VC</span>
+    <div>
+      <h1>Vice City Cover Studio</h1>
+      <p>Turn any photo into a multi-panel cover poster. 100% offline — your photos never leave this machine.</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button id="btn-random" class="btn ghost" type="button">🎲 Randomise look</button>
+    <button id="btn-reset" class="btn ghost" type="button">Reset</button>
+  </div>
+</header>
+
+<main class="editor">
+  <section class="stage-wrap">
+    <div class="stage-toolbar">
+      <span id="stage-label">Cover preview — 1080 × 1350</span>
+      <span class="hint">Click a panel to select it, then drag inside it to move the photo.</span>
+    </div>
+    <div class="stage">
+      <canvas id="cover" width="1080" height="1350"></canvas>
+      <div id="drop-hint" class="drop-hint">Drop photos here</div>
+    </div>
+    <div class="export-bar">
+      <span class="export-label">Export PNG</span>
+      <button class="btn primary" data-export="1080x1080" type="button">1080 × 1080</button>
+      <button class="btn primary" data-export="1080x1350" type="button">1080 × 1350</button>
+      <button class="btn primary" data-export="1920x1080" type="button">1920 × 1080</button>
+      <button id="btn-export-all" class="btn accent" type="button">Download all three</button>
+      <button id="btn-copy" class="btn ghost" type="button">Copy PNG</button>
+      <span id="export-status" class="export-status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <aside class="controls">
+    <section class="panel">
+      <h2>Photos</h2>
+      <div class="row">
+        <button id="btn-sample" class="btn" type="button">Load sample photo</button>
+        <button id="btn-sample2" class="btn" type="button">Load night sample</button>
+      </div>
+      <label class="file-btn">Upload photos…
+        <input id="file-input" type="file" accept="image/*" multiple hidden>
+      </label>
+      <div id="photo-strip" class="photo-strip" aria-label="Loaded photos"></div>
+      <p class="note">Tip: drag a photo from the strip onto a panel to fill it, or use Auto-fill.</p>
+      <button id="btn-autofill" class="btn wide" type="button">Auto-fill all panels</button>
+    </section>
+
+    <section class="panel">
+      <h2>Layout</h2>
+      <div class="layout-grid" role="group" aria-label="Cover layout">
+        <button class="layout-btn active" data-layout="hero" type="button">
+          <span class="thumb hero-thumb"></span>Hero + grid
+        </button>
+        <button class="layout-btn" data-layout="strip" type="button">
+          <span class="thumb strip-thumb"></span>Comic strip
+        </button>
+        <button class="layout-btn" data-layout="duo" type="button">
+          <span class="thumb duo-thumb"></span>Split duo
+        </button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Selected panel</h2>
+      <p id="panel-name" class="note">Panel 1 — hero</p>
+      <label>Zoom <span id="zoom-val">100%</span>
+        <input id="zoom" type="range" min="50" max="300" value="100">
+      </label>
+      <label>Rotate <span id="rot-val">0°</span>
+        <input id="rot" type="range" min="-25" max="25" value="0">
+      </label>
+      <div class="row">
+        <button id="btn-flip" class="btn" type="button">Flip photo</button>
+        <button id="btn-centre" class="btn" type="button">Centre photo</button>
+      </div>
+      <label>Panel grade
+        <select id="panel-grade">
+          <option value="original">Original</option>
+          <option value="sunset" selected>Sunset</option>
+          <option value="neon">Neon night</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="panel">
+      <h2>Colour grade</h2>
+      <label>Grade
+        <select id="grade">
+          <option value="sunset" selected>Sunset drive</option>
+          <option value="neon">Neon night</option>
+          <option value="none">None (original)</option>
+        </select>
+      </label>
+      <label>Grade strength <span id="strength-val">70%</span>
+        <input id="strength" type="range" min="0" max="100" value="70">
+      </label>
+      <label class="check"><input id="halftone" type="checkbox" checked> Halftone dots</label>
+      <label class="check"><input id="vignette" type="checkbox" checked> Vignette</label>
+    </section>
+
+    <section class="panel">
+      <h2>Lettering</h2>
+      <label>Title
+        <input id="title" type="text" value="VICE CITY" maxlength="24">
+      </label>
+      <label>Subtitle
+        <input id="subtitle" type="text" value="nights on the boulevard" maxlength="48">
+      </label>
+      <label>Corner tag
+        <input id="tag" type="text" value="EST. 2026" maxlength="16">
+      </label>
+      <label>Title position
+        <select id="text-pos">
+          <option value="top" selected>Top banner</option>
+          <option value="bottom">Bottom banner</option>
+          <option value="diagonal">Diagonal banner</option>
+        </select>
+      </label>
+      <label>Title size <span id="title-size-val">100%</span>
+        <input id="title-size" type="range" min="60" max="160" value="100">
+      </label>
+      <label>Title fill
+        <select id="title-fill">
+          <option value="white" selected>White</option>
+          <option value="sunset">Sunset gradient</option>
+          <option value="pink">Hot pink</option>
+        </select>
+      </label>
+      <label>Outline colour
+        <select id="outline">
+          <option value="#111111" selected>Black</option>
+          <option value="#ff2e88">Hot pink</option>
+          <option value="#00e5ff">Neon cyan</option>
+          <option value="#ffffff">White</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="panel">
+      <h2>Presets &amp; stickers</h2>
+      <div class="row wrap">
+        <button class="btn preset" data-preset="sunset" type="button">Sunset Drive</button>
+        <button class="btn preset" data-preset="neon" type="button">Neon Nights</button>
+        <button class="btn preset" data-preset="noir" type="button">Palm Noir</button>
+      </div>
+      <p class="note">Stickers — click to stamp one on the cover, then drag it to move it. Double-click a sticker to remove it.</p>
+      <div class="row wrap">
+        <button class="btn sticker-btn" data-sticker="palm" type="button">🌴 Palm</button>
+        <button class="btn sticker-btn" data-sticker="sun" type="button">☀️ Sun</button>
+        <button class="btn sticker-btn" data-sticker="bolt" type="button">⚡ Bolt</button>
+        <button class="btn sticker-btn" data-sticker="star" type="button">★ Star</button>
+      </div>
+      <label>Sticker size <span id="sticker-size-val">100%</span>
+        <input id="sticker-size" type="range" min="40" max="220" value="100">
+      </label>
+    </section>
+  </aside>
+</main>
+
+<footer class="foot">
+  <p>Vice City Cover Studio — an original offline tool. No photos are uploaded anywhere. Fonts: Anton (SIL OFL). All artwork is generated or drawn in code; nothing here is affiliated with Rockstar Games.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
